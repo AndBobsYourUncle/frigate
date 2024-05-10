@@ -48,6 +48,9 @@ ADD --link --chmod=755 "https://github.com/AlexxIT/go2rtc/releases/download/v1.8
 FROM base_host AS ov-converter
 ARG DEBIAN_FRONTEND
 
+RUN apt-get update && apt-get install libhdf5-dev libhdf5-serial-dev \
+        pkg-config gcc-aarch64-linux-gnu python3-dev -y
+
 # Install OpenVino Runtime and Dev library
 COPY docker/main/requirements-ov.txt /requirements-ov.txt
 RUN apt-get -qq update \
