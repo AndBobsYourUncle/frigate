@@ -8,6 +8,14 @@ ARG TRT_BASE=nvcr.io/nvidia/tensorrt:23.03-py3
 # Build TensorRT-specific library
 FROM ${TRT_BASE} AS trt-deps
 
+RUN apt-get update && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update
+
+RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
 RUN apt-get update \
     && apt-get install -y git build-essential cuda-nvcc-* cuda-nvtx-* libnvinfer-dev libnvinfer-plugin-dev libnvparsers-dev libnvonnxparsers-dev \
     && rm -rf /var/lib/apt/lists/*
