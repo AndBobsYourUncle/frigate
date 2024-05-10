@@ -12,7 +12,7 @@ if ! package_exists python3.9 ; then
   wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz
   tar -xf Python-3.9.6.tgz
   cd Python-3.9.6
-  ./configure --enable-optimizations
+  ./configure --enable-optimizations --with-openssl=$LD_LIBRARY_PATH
   make altinstall
 
   update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.9 1
