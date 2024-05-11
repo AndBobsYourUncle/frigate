@@ -48,6 +48,9 @@ ADD --link --chmod=755 "https://github.com/AlexxIT/go2rtc/releases/download/v1.8
 FROM base_host AS ov-converter
 ARG DEBIAN_FRONTEND
 
+RUN apt-get update && apt-get install libhdf5-dev libhdf5-serial-dev \
+        pkg-config gcc-aarch64-linux-gnu python3-dev -y
+
 # Install OpenVino Runtime and Dev library
 COPY docker/main/requirements-ov.txt /requirements-ov.txt
 RUN apt-get -qq update \
@@ -115,6 +118,11 @@ FROM base AS wheels
 ARG DEBIAN_FRONTEND
 ARG TARGETARCH
 
+RUN apt-get update && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update
+
 # Use a separate container to build wheels to prevent build dependencies in final image
 RUN apt-get -qq update \
     && apt-get -qq install -y \
@@ -130,12 +138,13 @@ RUN apt-get -qq update \
     && apt-get -qq install -y \
     python3.9 \
     python3.9-dev \
+    python3.9-distutils \
     # opencv dependencies
     build-essential cmake git pkg-config libgtk-3-dev \
     libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
     libxvidcore-dev libx264-dev libjpeg-dev libpng-dev libtiff-dev \
     gfortran openexr libatlas-base-dev libssl-dev\
-    libtbb2 libtbb-dev libdc1394-22-dev libopenexr-dev \
+    libtbb2 libtbb-dev libdc1394-dev libopenexr-dev \
     libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev \
     # scipy dependencies
     gcc gfortran libopenblas-dev liblapack-dev && \
@@ -184,7 +193,7 @@ RUN --mount=type=bind,source=docker/main/install_deps.sh,target=/deps/install_de
 
 RUN --mount=type=bind,from=wheels,source=/wheels,target=/deps/wheels \
     python3 -m pip install --upgrade pip && \
-    pip3 install -U /deps/wheels/*.whl
+    pip3 install --ignore-installed -U /deps/wheels/*.whl
 
 COPY --from=deps-rootfs / /
 
